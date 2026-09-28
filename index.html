@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Листик: репетитор по математике для 3 класса</title>
+<meta name="description" content="Онлайн-репетитор по математике для 3 класса. Ведёт по шагам, напоминает правила, подбадривает и не показывает готовый ответ.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&family=Marck+Script&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background-color: #F8FBFF;
+    background-image: linear-gradient(#D9E7F8 1px, transparent 1px), linear-gradient(90deg, #D9E7F8 1px, transparent 1px);
+    background-size: 28px 28px;
+    color: #22283A;
+    font-family: "Nunito", "Trebuchet MS", system-ui, sans-serif;
+    font-size: 19px;
+    line-height: 1.55;
+  }
+  a { color: #1B3DB8; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding-left: clamp(20px, 5vw, 48px); padding-right: clamp(20px, 5vw, 48px); }
+  .hand { font-family: "Marck Script", "Segoe Script", "Comic Sans MS", cursive; }
+  h1, h2, h3 { margin: 0; }
+  h2 { font-size: clamp(30px, 4vw, 40px); line-height: 1.15; font-weight: 800; }
+  p { margin: 0 0 16px; }
+
+  header .wrap { padding-top: 28px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-size: 38px; color: #1B3DB8; line-height: 1; }
+  .for { font-size: 16px; font-weight: 600; color: #4A5468; }
+
+  .btn {
+    display: inline-block; min-height: 52px; padding: 12px 26px; font-weight: 800; font-size: 19px;
+    text-decoration: none; border-radius: 10px; border: 2px solid #1B3DB8; background: #1B3DB8; color: #fff;
+  }
+  .btn.ghost { background: transparent; color: #1B3DB8; }
+  .btn:focus-visible, a:focus-visible { outline: 3px solid #D8343B; outline-offset: 3px; }
+
+  .hero .wrap { padding-top: 56px; padding-bottom: 88px; display: flex; flex-wrap: wrap; gap: 48px; align-items: center; }
+  .hero .text { flex: 1 1 420px; min-width: 0; }
+  .hero h1 { font-size: clamp(38px, 6vw, 62px); line-height: 1.08; font-weight: 800; color: #1B3DB8; margin-bottom: 20px; }
+  .hero .lead { font-size: 22px; max-width: 34ch; margin-bottom: 28px; }
+  .hero .btns { display: flex; flex-wrap: wrap; gap: 12px; }
+  .hero .art { flex: 1 1 360px; min-width: 0; max-width: 520px; }
+  .sheet {
+    position: relative; background-color: #fff;
+    background-image: linear-gradient(#D9E7F8 1px, transparent 1px), linear-gradient(90deg, #D9E7F8 1px, transparent 1px);
+    background-size: 28px 28px; border: 2px solid #B9CBE6; border-radius: 6px 20px 6px 20px; padding: 28px 24px 24px 64px;
+  }
+  .sheet::before { content: ""; position: absolute; top: 0; bottom: 0; left: 40px; width: 2px; background: #D8343B; opacity: .6; }
+  .sheet .lines { color: #1B3DB8; font-size: 34px; line-height: 1.5; }
+  .sheet .first { font-size: 38px; margin-bottom: 8px; }
+  .cap { font-size: 16px; color: #4A5468; margin: 14px 0 0; }
+
+  .band { background: #fff; border-top: 2px solid #B9CBE6; border-bottom: 2px solid #B9CBE6; }
+  .two { display: flex; flex-wrap: wrap; gap: 40px 64px; }
+  .two .l { flex: 1 1 320px; min-width: 0; }
+  .two .r { flex: 2 1 420px; min-width: 0; max-width: 62ch; }
+  .two .r p:last-child { margin-bottom: 0; }
+  .pad { padding-top: 72px; padding-bottom: 72px; }
+
+  .steps { display: flex; flex-wrap: wrap; gap: 36px 32px; margin-top: 40px; }
+  .steps > div { flex: 1 1 220px; min-width: 0; }
+  .num { font-size: 64px; line-height: 1; color: #1B3DB8; }
+  .steps h3 { font-size: 22px; font-weight: 800; margin: 8px 0; }
+  .steps p { font-size: 18px; margin: 0; }
+
+  .demo { background: #fff; border: 2px solid #1B3DB8; border-radius: 20px 6px 20px 6px; padding: 22px; }
+  .demo .meta { font-size: 15px; font-weight: 700; color: #4A5468; margin-bottom: 6px; }
+  .demo .q { font-size: 21px; font-weight: 700; line-height: 1.4; margin-bottom: 14px; }
+  .voice { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 14px; }
+  .bubble { background: #F8FBFF; border: 2px solid #1B3DB8; border-radius: 14px 14px 14px 2px; padding: 8px 14px; font-size: 17px; line-height: 1.4; }
+  .disp { display: flex; align-items: center; justify-content: center; min-width: 120px; width: max-content; height: 62px; padding: 0 18px; background: #FFF3C4; border: 3px solid #1B3DB8; border-radius: 12px; font-size: 34px; font-weight: 800; color: #1B3DB8; margin-bottom: 12px; }
+  .bad { background: #FCE9EA; border: 2px solid #C22B32; border-radius: 10px; padding: 12px 14px; font-size: 18px; }
+  .bad b { color: #B0242B; }
+  .mark { background: #FFF3C4; border-radius: 10px; padding: 12px 14px; margin-top: 12px; font-size: 18px; }
+
+  .cards { display: flex; flex-wrap: wrap; gap: 28px; margin-top: 40px; }
+  .card { flex: 1 1 380px; min-width: 0; padding: 28px; }
+  .card h3 { font-size: 26px; font-weight: 800; margin-bottom: 12px; }
+  .card p:last-child { margin-bottom: 0; }
+  .card.prog { background: #F8FBFF; border: 2px solid #1B3DB8; border-radius: 20px 6px 20px 6px; }
+  .card.prog h3 { color: #1B3DB8; }
+  .card.ai { background: #FFF3C4; border: 2px solid #C9A227; border-radius: 6px 20px 6px 20px; }
+
+  .cta { background: #1B3DB8; color: #fff; }
+  .cta .wrap { padding-top: 72px; padding-bottom: 72px; display: flex; flex-wrap: wrap; gap: 32px 56px; align-items: center; justify-content: space-between; }
+  .cta .t { flex: 1 1 420px; min-width: 0; max-width: 56ch; }
+  .cta h2 { color: #fff; margin-bottom: 12px; font-size: clamp(30px, 4vw, 42px); }
+  .cta p { font-size: 20px; color: #E6ECFF; margin: 0; }
+  .cta .side { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+  .cta .btn { background: #fff; color: #1B3DB8; border-color: #fff; }
+  .cta .contact { font-size: 18px; color: #E6ECFF; }
+  .cta .contact a { color: #fff; font-weight: 800; }
+  .cta .contact a:focus-visible { outline-color: #fff; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brand hand">
+      <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><path d="M6 34C6 16 16 6 34 6c0 18-10 28-26 28" fill="#2E9E5B" stroke="#1B3DB8" stroke-width="2.5" stroke-linejoin="round"/><path d="M6 34C14 24 21 18 28 12" fill="none" stroke="#1B3DB8" stroke-width="2.5" stroke-linecap="round"/></svg>
+      <span>Листик</span>
+    </div>
+    <div class="for">Для родителей учеников 3 класса</div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div class="text">
+        <h1>Листик помогает ребёнку дойти до ответа самому</h1>
+        <p class="lead">Онлайн-репетитор по математике для 3 класса. Ведёт по шагам, напоминает правила, подбадривает. Готовый ответ ребёнку не показывает.</p>
+        <div class="btns">
+          <a class="btn" href="listik.html">Попробовать задачу</a>
+          <a class="btn ghost" href="#how">Как это работает</a>
+        </div>
+      </div>
+      <div class="art">
+        <div class="sheet">
+          <div class="lines hand">
+            <div class="first">56 : x = (10 + 6) : 2</div>
+            <div>10 + 6 = 16</div>
+            <div>16 : 2 = 8</div>
+            <div>56 : x = 8,&nbsp;&nbsp; x — делитель</div>
+            <div>x = 56 : 8 = 7</div>
+            <div>56 : 7 = 8</div>
+          </div>
+        </div>
+        <p class="cap">Запись в тетради, которую ребёнок собирает сам, шаг за шагом. Уравнение из учебника 3 класса.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap pad two">
+      <div class="l"><h2>Почему не обычный чат-бот</h2></div>
+      <div class="r">
+        <p>Мы проверили обычный чат-бот в роли репетитора. Он придумывал числа, которых не было в задаче, пропустил действие в скобках и вместо правила предлагал угадать число.</p>
+        <p>В математике угадывать нельзя. Поэтому в Листике все шаги и ответы записаны заранее, а правильность ответа проверяет программа, а не нейросеть.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap" style="padding-top: 88px; padding-bottom: 24px">
+      <h2>Как проходит занятие</h2>
+      <div class="steps">
+        <div>
+          <div class="num hand">1</div>
+          <h3>Выбирает задачу</h3>
+          <p>Ребёнок берёт номер из учебника. Условие всегда перед глазами.</p>
+        </div>
+        <div>
+          <div class="num hand">2</div>
+          <h3>Идёт по шагам</h3>
+          <p>Один короткий вопрос за раз. Ответ на каждый вопрос один: число, выбор из вариантов или название действия. Ребёнок набирает число крупными кнопками на экране.</p>
+        </div>
+        <div>
+          <div class="num hand">3</div>
+          <h3>Ошибся: получает лесенку</h3>
+          <p>Сначала правило. После второй ошибки разбор похожего примера. После третьей Листик предлагает перерыв или позвать взрослого.</p>
+        </div>
+        <div>
+          <div class="num hand">4</div>
+          <h3>Проверяет и подводит итог</h3>
+          <p>Ребёнок сам проверяет ответ подстановкой. В конце видно, что получилось сразу, что было трудно и что стоит повторить.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap two" style="padding-top: 56px; padding-bottom: 88px; align-items: flex-start">
+      <div class="l" style="max-width: 46ch">
+        <h2 style="margin-bottom: 16px">Так выглядит ошибка</h2>
+        <p>Ребёнок ответил неверно. Листик не ругает и не называет число. Он ободряет, а под репликой показывает правило, по которому нужно решать.</p>
+        <p>Реплики Листика читаются вслух голосом устройства, а кнопка «Прочитать» озвучивает вопрос. Это помогает, если ребёнок ещё медленно читает.</p>
+      </div>
+      <div style="flex: 1 1 380px; min-width: 0; max-width: 540px">
+        <div class="demo">
+          <div class="meta">Шаг 3 из 8</div>
+          <div class="q">Правая часть ещё не готова: осталось 16 : 2. Сколько будет 16 : 2?</div>
+          <div class="voice">
+            <svg width="38" height="38" viewBox="0 0 40 40" aria-hidden="true"><path d="M6 34C6 16 16 6 34 6c0 18-10 28-26 28" fill="#2E9E5B" stroke="#1B3DB8" stroke-width="2.5" stroke-linejoin="round"/><path d="M6 34C14 24 21 18 28 12" fill="none" stroke="#1B3DB8" stroke-width="2.5" stroke-linecap="round"/></svg>
+            <div class="bubble">Ничего страшного, так бывает. Прочитай правило ниже и попробуй ещё раз.</div>
+          </div>
+          <div class="disp">?</div>
+          <div class="bad"><b>Пока не так.</b> Смотри правило и попробуй ещё раз.</div>
+          <div class="mark"><b>Правило:</b> Раздели 16 на 2 поровну. Вспомни: 2 · ? = 16.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap" style="padding-top: 88px; padding-bottom: 88px">
+      <h2 style="margin-bottom: 12px">Кто за что отвечает</h2>
+      <p style="max-width: 62ch; margin-bottom: 0">Всё, что связано с математикой, делает программа. Нейросеть, если её подключить, нужна только для тепла.</p>
+      <div class="cards">
+        <div class="card prog">
+          <h3>Программа проверяет</h3>
+          <p>Условия, шаги, правила и ответы записаны заранее. Программа сама сравнивает ответ ребёнка с верным.</p>
+          <p>Порядок действий нельзя нарушить: пока правая часть уравнения не доведена до конца, следующий шаг не откроется.</p>
+          <p>Числа Листик не придумывает. Он работает только с задачами из своей тетради.</p>
+        </div>
+        <div class="card ai">
+          <h3>Нейросеть только подбадривает</h3>
+          <p>В этой версии Листик говорит заготовленными фразами: хвалит, поддерживает после ошибки, предлагает отдохнуть.</p>
+          <p>Есть и вторая версия, внутри Claude: там короткие тёплые реплики пишет нейросеть. Она не видит ни вопроса, ни правильного ответа, ни того, что набрал ребёнок, а каждая её реплика проверяется программой.</p>
+          <p>Ответы и ход занятия не зависят от нейросети ни в одной из версий.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap pad two" style="padding-top: 88px; padding-bottom: 24px">
+      <div class="l"><h2>Ребёнку спокойно, вам ясно</h2></div>
+      <div class="r">
+        <p><b>Никаких личных данных.</b> Листик не просит имя, фамилию, школу или телефон. Ответы ребёнка нигде не сохраняются: закрыл страницу, и занятие закончилось.</p>
+        <p><b>Только учёба.</b> Листик показывает только задачу и шаги. Он называет себя компьютерной программой-помощником, а не человеком.</p>
+        <p><b>Взрослый рядом, когда нужно.</b> После трёх ошибок на одном шаге Листик предлагает позвать взрослого. Ответ шага открывается только после небольшого примера для взрослых, а вводит его всё равно ребёнок.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap pad two" style="padding-top: 72px; padding-bottom: 88px">
+      <div class="l"><h2>Что пока не умеет</h2></div>
+      <div class="r">
+        <p><b>Это пробная версия.</b> Сейчас в ней четыре задачи: три уравнения (порядок действий, неизвестный делитель, уменьшаемое, слагаемое) и одна задача на деление с остатком.</p>
+        <p><b>Незнакомую задачу не разберёт.</b> Новые задачи добавляются из учебника вместе с пошаговым решением и проверяются заранее.</p>
+        <p><b>Озвучка звучит как робот.</b> Это встроенный голос устройства. Он работает без интернета, но не как живой человек. Если на устройстве нет русского голоса, Листик только пишет.</p>
+        <p><b>Реплик нейросети в этой версии нет.</b> Они работают только в версии внутри Claude.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="wrap">
+      <div class="t">
+        <h2>Попробуйте вместе с ребёнком</h2>
+        <p>Первые занятия посидите рядом. Нам важно узнать, что понравилось, что непонятно и какие темы стоит добавить.</p>
+      </div>
+      <div class="side">
+        <a class="btn" href="listik.html">Открыть Листика</a>
+        <div class="contact">
+          <div>Отзывы и вопросы: Таир</div>
+          <div><a href="tel:+77759714163">+7 775 971 41 63</a> (телефон и WhatsApp)</div>
+          <div><a href="https://wa.me/77759714163">Написать в WhatsApp</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+</body>
+</html>

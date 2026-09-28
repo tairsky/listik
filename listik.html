@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Листик — репетитор по математике</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&family=Marck+Script&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F8FBFF;
+    --grid: #D3E3F7;
+    --ink: #1B3DB8;
+    --red: #D8343B;
+    --green: #1B7F45;
+    --text: #22283A;
+    --muted: #5B6479;
+    --card: #FFFFFF;
+    --line: #B9CBE6;
+    --ok-bg: #E4F5EA;
+    --bad-bg: #FCE9EA;
+    --mark-bg: #FFF3C4;
+    --btn-text: #FFFFFF;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #12172A; --grid: #212A48; --ink: #93ABFF; --red: #FF8087; --green: #66D48F;
+      --text: #E8ECF8; --muted: #A3ACC6; --card: #1A2140; --line: #34406A;
+      --ok-bg: #163429; --bad-bg: #3B2028; --mark-bg: #3B3620; --btn-text: #0F1530;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #12172A; --grid: #212A48; --ink: #93ABFF; --red: #FF8087; --green: #66D48F;
+    --text: #E8ECF8; --muted: #A3ACC6; --card: #1A2140; --line: #34406A;
+    --ok-bg: #163429; --bad-bg: #3B2028; --mark-bg: #3B3620; --btn-text: #0F1530;
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  *, *::before, *::after { box-sizing: inherit; }
+  body {
+    margin: 0;
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 24px 24px;
+    background-position: -1px -1px;
+    color: var(--text);
+    font-family: "Nunito", "Trebuchet MS", system-ui, sans-serif;
+    font-size: 18px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  body::before {
+    content: ""; position: fixed; top: 0; bottom: 0; left: 14px; width: 2px;
+    background: var(--red); opacity: .55; pointer-events: none;
+  }
+  .sheet { max-width: 640px; margin: 0 auto; padding: 20px 16px 48px 32px; }
+  @media (min-width: 700px) {
+    body::before { left: calc(50% - 320px + 14px); }
+    .sheet { padding-left: 34px; }
+  }
+  .hand { font-family: "Marck Script", "Segoe Script", "Comic Sans MS", cursive; }
+
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+  .brand { display: flex; align-items: center; gap: 8px; font-size: 32px; color: var(--ink); line-height: 1; }
+  .brand svg { width: 34px; height: 34px; }
+  .back {
+    font: inherit; font-size: 16px; font-weight: 700; background: none; border: 0; color: var(--ink);
+    padding: 10px 6px; min-height: 44px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
+  }
+  h1, h2 { margin: 0; line-height: 1.2; }
+  .lead { font-size: 20px; margin: 0 0 22px; max-width: 34ch; }
+
+  .tasks { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+  .task-btn {
+    width: 100%; text-align: left; font: inherit; color: var(--text);
+    background: var(--card); border: 2px solid var(--ink); border-radius: 4px 14px 4px 14px;
+    padding: 14px 16px; cursor: pointer; display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; align-items: baseline;
+  }
+  .task-btn:hover { background: var(--mark-bg); }
+  .task-no { font-size: 30px; color: var(--ink); grid-row: span 2; }
+  .task-title { font-weight: 800; }
+  .task-cond { font-size: 16px; color: var(--muted); }
+
+  .condition { background: var(--card); border: 2px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; }
+  .condition .no { font-size: 15px; color: var(--muted); font-weight: 700; }
+  .condition .txt { font-size: 28px; color: var(--ink); line-height: 1.3; margin-top: 2px; }
+  .condition .txt.long { font-size: 24px; }
+
+  .notebook { margin: 0 0 16px; min-height: 8px; }
+  .nline { font-size: 24px; color: var(--ink); line-height: 1.35; padding-left: 6px; border-left: 3px solid var(--ink); margin-bottom: 4px; }
+
+  .dots { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 12px; }
+  .dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--ink); background: transparent; }
+  .dot.done { background: var(--ink); }
+  .dot.cur { background: var(--mark-bg); box-shadow: 0 0 0 3px var(--mark-bg); }
+
+  .step { background: var(--card); border: 2px solid var(--ink); border-radius: 14px 4px 14px 4px; padding: 16px; }
+  .step .meta { font-size: 15px; color: var(--muted); font-weight: 700; margin-bottom: 6px; }
+  .q { font-size: 21px; font-weight: 700; line-height: 1.4; margin: 0 0 14px; }
+
+  /* голос Листика */
+  .voice { display: flex; gap: 10px; align-items: flex-end; margin: 0 0 14px; }
+  .voice svg { width: 38px; height: 38px; flex: none; }
+  .bubble {
+    background: var(--paper); border: 2px solid var(--ink); border-radius: 14px 14px 14px 2px;
+    padding: 8px 14px; font-size: 17px; line-height: 1.4; min-height: 42px; display: flex; align-items: center;
+  }
+  .dots3 { display: inline-flex; gap: 5px; }
+  .dots3 i { width: 8px; height: 8px; border-radius: 50%; background: var(--ink); opacity: .35; animation: bob 1s infinite; }
+  .dots3 i:nth-child(2) { animation-delay: .15s; }
+  .dots3 i:nth-child(3) { animation-delay: .3s; }
+  @keyframes bob { 0%, 100% { opacity: .25; } 40% { opacity: 1; } }
+
+  .opts { display: grid; gap: 10px; }
+  .opt {
+    font: inherit; font-weight: 700; text-align: left; color: var(--text);
+    background: var(--paper); border: 2px solid var(--line); border-radius: 10px;
+    padding: 12px 14px; min-height: 56px; cursor: pointer; touch-action: manipulation;
+  }
+  .opt:hover:not(:disabled) { border-color: var(--ink); background: var(--mark-bg); }
+  .opt.wrong { border-color: var(--red); background: var(--bad-bg); text-decoration: line-through; cursor: default; }
+
+  /* поля ответа и клавиатура */
+  .fields { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+  .field { display: grid; gap: 4px; font-weight: 700; font-size: 16px; }
+  .disp {
+    font: inherit; font-size: 34px; font-weight: 800; color: var(--ink); text-align: center;
+    min-width: 120px; height: 64px; padding: 0 16px; background: var(--paper);
+    border: 3px solid var(--line); border-radius: 12px; cursor: pointer; touch-action: manipulation;
+  }
+  .disp.active { border-color: var(--ink); background: var(--mark-bg); }
+  .disp.active .val::after { content: ""; display: inline-block; height: 1em; border-right: 3px solid var(--ink); margin-left: 2px; vertical-align: -0.12em; animation: blink 1s steps(1) infinite; }
+  .disp .ph { color: var(--muted); opacity: .6; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 340px; margin-top: 14px; user-select: none; -webkit-user-select: none; }
+  .key {
+    font: inherit; font-size: 28px; font-weight: 800; color: var(--text);
+    background: var(--paper); border: 2px solid var(--line); border-radius: 12px;
+    height: 62px; cursor: pointer; touch-action: manipulation;
+  }
+  .key:active { background: var(--mark-bg); border-color: var(--ink); }
+  .key.go { background: var(--ink); border-color: var(--ink); color: var(--btn-text); font-size: 16px; }
+  .key.erase { font-size: 24px; }
+
+  input.num {
+    font: inherit; font-size: 26px; font-weight: 800; color: var(--ink);
+    width: 132px; padding: 8px 12px; border: 2px solid var(--ink); border-radius: 10px; background: var(--paper);
+  }
+  input.num:focus-visible, .btn:focus-visible, .opt:focus-visible, .task-btn:focus-visible, .back:focus-visible,
+  .key:focus-visible, .disp:focus-visible {
+    outline: 3px solid var(--red); outline-offset: 2px;
+  }
+
+  .btn {
+    font: inherit; font-weight: 800; font-size: 18px;
+    background: var(--ink); color: var(--btn-text); border: 2px solid var(--ink);
+    border-radius: 10px; padding: 10px 20px; min-height: 48px; cursor: pointer;
+  }
+  .btn.ghost { background: transparent; color: var(--ink); }
+  .btn.small { font-size: 15px; min-height: 40px; padding: 6px 14px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+
+  .fb { border-radius: 10px; padding: 12px 14px; margin-top: 12px; font-size: 18px; }
+  .fb.ok { background: var(--ok-bg); border: 2px solid var(--green); }
+  .fb.bad { background: var(--bad-bg); border: 2px solid var(--red); }
+  .fb strong.g { color: var(--green); }
+  .fb strong.r { color: var(--red); }
+  .mark { background: var(--mark-bg); border-radius: 10px; padding: 12px 14px; margin-top: 12px; }
+  .mark b { font-weight: 800; }
+  .pop { animation: pop .25s ease-out; }
+  @keyframes pop { from { transform: scale(.96); } to { transform: scale(1); } }
+  @media (prefers-reduced-motion: reduce) {
+    .pop, .dots3 i, .disp.active .val::after { animation: none; }
+    .dots3 i { opacity: .8; }
+  }
+
+  .sum { background: var(--card); border: 2px solid var(--ink); border-radius: 14px 4px 14px 4px; padding: 18px; }
+  .sum h2 { font-size: 26px; color: var(--ink); margin-bottom: 10px; }
+  .sum p { margin: 0 0 10px; }
+  .foot { margin-top: 28px; font-size: 14px; color: var(--muted); max-width: 52ch; }
+  .foot p { margin: 0 0 8px; }
+  .top { flex-wrap: wrap; }
+  .tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .snd, .speak {
+    font: inherit; font-size: 15px; font-weight: 700; background: transparent; color: var(--ink);
+    border: 2px solid var(--line); border-radius: 10px; padding: 4px 12px; min-height: 40px; cursor: pointer; touch-action: manipulation;
+  }
+  .snd:hover, .speak:hover { border-color: var(--ink); background: var(--mark-bg); }
+  .snd:focus-visible, .speak:focus-visible { outline: 3px solid var(--red); outline-offset: 2px; }
+  .meta-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .meta-row .meta { margin: 0; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="sheet" id="app"></div>
+
+<script>
+/* ============================================================
+   БАНК ЗАДАЧ. Все шаги и ответы записаны заранее.
+   Правильность ответа проверяет программа, не нейросеть.
+   Типы шагов:
+     choice — выбор из вариантов (correct — номер верного, с нуля)
+     number — одно число (answer)
+     pair   — два числа по порядку полей (fields, answer)
+   q — вопрос, rule — правило при ошибке, ok — фраза при верном ответе,
+   note — строка в тетрадь, skill — тема шага (единственное, что знает ИИ).
+   ============================================================ */
+const TASKS = [
+  {
+    id: "3a", no: "3а", title: "Уравнение", condition: "56 : x = (10 + 6) : 2",
+    similar: "12 : x = 4. Чтобы найти делитель, делим делимое на частное: x = 12 : 4 = 3. Проверка: 12 : 3 = 4. Верно.",
+    steps: [
+      { type: "choice", skill: "порядок действий",
+        q: "В правой части (10 + 6) : 2 два действия. Какое выполняем первым?",
+        options: ["Деление на 2", "Сложение в скобках 10 + 6"], correct: 1,
+        rule: "Действия в скобках выполняются первыми.",
+        ok: "Да, скобки идут первыми." },
+      { type: "number", skill: "сложение и вычитание", q: "Сколько будет 10 + 6?", answer: 16,
+        rule: "10 — это один десяток. Прибавь к нему 6 единиц.",
+        ok: "Верно: 10 + 6 = 16.", note: "10 + 6 = 16" },
+      { type: "number", skill: "таблица умножения и деления",
+        q: "Правая часть ещё не готова: осталось 16 : 2. Сколько будет 16 : 2?", answer: 8,
+        rule: "Раздели 16 на 2 поровну. Вспомни: 2 · ? = 16.",
+        ok: "Верно: 16 : 2 = 8. Правая часть доведена до конца.", note: "16 : 2 = 8" },
+      { type: "choice", skill: "названия чисел при действиях",
+        q: "Теперь уравнение выглядит так: 56 : x = 8. Чем является x?",
+        options: ["Делимым", "Частным", "Делителем"], correct: 2,
+        rule: "В записи «делимое : делитель = частное» делитель стоит после знака деления. Здесь после знака «:» стоит x.",
+        ok: "Да, x — делитель.", note: "56 : x = 8,   x — делитель" },
+      { type: "pair", skill: "правило для неизвестного",
+        q: "Правило: чтобы найти делитель, делимое делим на частное. Какое здесь делимое и какое частное?",
+        fields: ["Делимое", "Частное"], answer: [56, 8],
+        rule: "Делимое — число, которое делим (стоит первым). Частное — результат деления (стоит после знака «=»).",
+        ok: "Верно: делимое 56, частное 8." },
+      { type: "number", skill: "таблица умножения и деления", q: "Сколько будет 56 : 8? Это и есть x.", answer: 7,
+        rule: "Вспомни таблицу умножения: 8 · ? = 56.",
+        ok: "Верно: x = 7.", note: "x = 56 : 8 = 7" },
+      { type: "number", skill: "проверка подстановкой", q: "Проверка. Подставь 7 вместо x. Сколько будет 56 : 7?", answer: 8,
+        rule: "Вспомни таблицу умножения: 7 · ? = 56.",
+        ok: "Верно: 56 : 7 = 8.", note: "56 : 7 = 8" },
+      { type: "choice", skill: "проверка подстановкой", q: "Левая часть получилась 8. Правая часть тоже 8. Равны ли они?",
+        options: ["Нет, не равны", "Да, равны"], correct: 1,
+        rule: "Сравни два числа: 8 и 8.",
+        ok: "Да! 8 = 8, значит x = 7 подходит." }
+    ]
+  },
+  {
+    id: "3b", no: "3б", title: "Уравнение", condition: "x − 340 : 10 = 12 · 5",
+    similar: "x − 6 = 10. Чтобы найти уменьшаемое, к разности прибавляем вычитаемое: x = 10 + 6 = 16. Проверка: 16 − 6 = 10. Верно.",
+    steps: [
+      { type: "choice", skill: "порядок действий",
+        q: "В левой части x − 340 : 10 два действия: вычитание и деление. Какое выполняем первым?",
+        options: ["Деление 340 : 10", "Вычитание x − 340"], correct: 0,
+        rule: "Умножение и деление выполняются раньше сложения и вычитания.",
+        ok: "Да, деление раньше вычитания." },
+      { type: "number", skill: "таблица умножения и деления", q: "Сколько будет 340 : 10?", answer: 34,
+        rule: "При делении круглого числа на 10 убираем один ноль в конце.",
+        ok: "Верно: 340 : 10 = 34.", note: "340 : 10 = 34" },
+      { type: "number", skill: "таблица умножения и деления", q: "Теперь правая часть. Сколько будет 12 · 5?", answer: 60,
+        rule: "Разложи 12 на 10 и 2. Найди 10 · 5 и 2 · 5, потом сложи.",
+        ok: "Верно: 12 · 5 = 60.", note: "12 · 5 = 60" },
+      { type: "choice", skill: "названия чисел при действиях",
+        q: "Теперь уравнение выглядит так: x − 34 = 60. Чем является x?",
+        options: ["Разностью", "Уменьшаемым", "Вычитаемым"], correct: 1,
+        rule: "В записи «уменьшаемое − вычитаемое = разность» уменьшаемое стоит первым. Здесь первым стоит x.",
+        ok: "Да, x — уменьшаемое.", note: "x − 34 = 60,   x — уменьшаемое" },
+      { type: "pair", skill: "правило для неизвестного",
+        q: "Правило: чтобы найти уменьшаемое, к разности прибавляем вычитаемое. Какая здесь разность и какое вычитаемое?",
+        fields: ["Разность", "Вычитаемое"], answer: [60, 34],
+        rule: "Разность — результат вычитания (стоит после знака «=»). Вычитаемое — число, которое вычитаем (стоит после знака «−»).",
+        ok: "Верно: разность 60, вычитаемое 34." },
+      { type: "number", skill: "сложение и вычитание", q: "Сколько будет 60 + 34? Это и есть x.", answer: 94,
+        rule: "Разложи 34 на 30 и 4. Сначала прибавь 30 к 60, потом прибавь 4.",
+        ok: "Верно: x = 94.", note: "x = 60 + 34 = 94" },
+      { type: "number", skill: "проверка подстановкой",
+        q: "Проверка. Подставь 94 вместо x: 94 − 340 : 10. Мы знаем, что 340 : 10 = 34. Сколько будет 94 − 34?", answer: 60,
+        rule: "Вычитай по частям: сначала 94 − 30, потом ещё − 4.",
+        ok: "Верно: 94 − 34 = 60.", note: "94 − 34 = 60" },
+      { type: "choice", skill: "проверка подстановкой", q: "Левая часть получилась 60. Правая часть 12 · 5 тоже 60. Равны ли они?",
+        options: ["Да, равны", "Нет, не равны"], correct: 0,
+        rule: "Сравни два числа: 60 и 60.",
+        ok: "Да! 60 = 60, значит x = 94 подходит." }
+    ]
+  },
+  {
+    id: "3v", no: "3в", title: "Уравнение", condition: "484 : 4 + x = 210",
+    similar: "30 + x = 50. Чтобы найти слагаемое, из суммы вычитаем известное слагаемое: x = 50 − 30 = 20. Проверка: 30 + 20 = 50. Верно.",
+    steps: [
+      { type: "choice", skill: "порядок действий",
+        q: "В левой части 484 : 4 + x два действия: деление и сложение. Какое выполняем первым?",
+        options: ["Сложение с x", "Деление 484 : 4"], correct: 1,
+        rule: "Деление выполняется раньше сложения.",
+        ok: "Да, сначала делим." },
+      { type: "number", skill: "таблица умножения и деления", q: "Разложим 484 на 480 и 4. Сколько будет 480 : 4?", answer: 120,
+        rule: "480 — это 48 десятков. Раздели 48 на 4, получишь десятки.",
+        ok: "Верно: 480 : 4 = 120.", note: "480 : 4 = 120" },
+      { type: "number", skill: "таблица умножения и деления", q: "Теперь вторая часть. Сколько будет 4 : 4?", answer: 1,
+        rule: "Сколько раз 4 содержится в 4?",
+        ok: "Верно: 4 : 4 = 1.", note: "4 : 4 = 1" },
+      { type: "number", skill: "сложение и вычитание", q: "Сложим части: 120 + 1. Сколько получилось? Это значение 484 : 4.", answer: 121,
+        rule: "К 120 прибавь одну единицу.",
+        ok: "Верно: 484 : 4 = 121.", note: "484 : 4 = 121" },
+      { type: "choice", skill: "названия чисел при действиях",
+        q: "Теперь уравнение выглядит так: 121 + x = 210. Чем является x?",
+        options: ["Слагаемым", "Суммой", "Разностью"], correct: 0,
+        rule: "Числа, которые складываем, — слагаемые. Результат сложения — сумма. Здесь складываются 121 и x.",
+        ok: "Да, x — слагаемое.", note: "121 + x = 210,   x — слагаемое" },
+      { type: "pair", skill: "правило для неизвестного",
+        q: "Правило: чтобы найти слагаемое, из суммы вычитаем известное слагаемое. Какая здесь сумма и какое известное слагаемое?",
+        fields: ["Сумма", "Известное слагаемое"], answer: [210, 121],
+        rule: "Сумма — результат сложения (стоит после знака «=»). Известное слагаемое — то, которое уже написано числом.",
+        ok: "Верно: сумма 210, известное слагаемое 121." },
+      { type: "number", skill: "сложение и вычитание", q: "Сколько будет 210 − 121? Это и есть x.", answer: 89,
+        rule: "Вычитай по частям: 210 − 100, потом − 20, потом − 1.",
+        ok: "Верно: x = 89.", note: "x = 210 − 121 = 89" },
+      { type: "number", skill: "проверка подстановкой", q: "Проверка. Подставь 89 вместо x. Сколько будет 121 + 89?", answer: 210,
+        rule: "Сложи по частям: 121 + 80, потом + 9.",
+        ok: "Верно: 121 + 89 = 210.", note: "121 + 89 = 210" },
+      { type: "choice", skill: "проверка подстановкой", q: "Левая часть получилась 210. Правая часть тоже 210. Равны ли они?",
+        options: ["Нет, не равны", "Да, равны"], correct: 1,
+        rule: "Сравни два числа: 210 и 210.",
+        ok: "Да! 210 = 210, значит x = 89 подходит." }
+    ]
+  },
+  {
+    id: "4", no: "4", title: "Задача",
+    condition: "В альбоме разместили 35 фотографий по 4 на каждую страницу. Сколько фотографий осталось?",
+    long: true,
+    similar: "17 карандашей раскладывают по 5 в коробку. 5 · 3 = 15, 5 · 4 = 20, а 20 больше 17. Значит, полных коробок 3. В них лежит 15 карандашей, осталось 17 − 15 = 2. Запись: 17 : 5 = 3 (ост. 2).",
+    steps: [
+      { type: "pair", skill: "условие задачи",
+        q: "Что нам известно? Сколько всего фотографий и сколько помещается на одной странице?",
+        fields: ["Всего фотографий", "На одной странице"], answer: [35, 4],
+        rule: "Перечитай условие. «Разместили 35 фотографий» — это всего. «По 4 на каждую страницу» — это на одной странице.",
+        ok: "Верно: всего 35, на странице по 4." },
+      { type: "choice", skill: "условие задачи", q: "Что нужно найти?",
+        options: ["Сколько всего фотографий", "Сколько фотографий не поместилось на полные страницы", "Сколько стоит альбом"], correct: 1,
+        rule: "Найди в условии вопрос — последнее предложение.",
+        ok: "Да. Нам нужно найти фотографии, которые остались без места." },
+      { type: "choice", skill: "выбор действия",
+        q: "Какое действие покажет, сколько страниц заполнится полностью, если раскладывать по 4?",
+        options: ["Умножение 35 · 4", "Сложение 35 + 4", "Деление 35 : 4"], correct: 2,
+        rule: "Когда раскладываем поровну по несколько штук, используем деление.",
+        ok: "Да, раскладываем по 4 — это деление.", note: "35 : 4" },
+      { type: "number", skill: "таблица умножения и деления", q: "Найдём по таблице умножения. Сколько будет 4 · 8?", answer: 32,
+        rule: "Вспомни: 4 · 8 = 4 · 4 + 4 · 4, или 8 · 4 из таблицы на 8.",
+        ok: "Верно: 4 · 8 = 32.", note: "4 · 8 = 32" },
+      { type: "number", skill: "таблица умножения и деления", q: "А сколько будет 4 · 9?", answer: 36,
+        rule: "К 4 · 8 = 32 прибавь ещё одно число 4.",
+        ok: "Верно: 4 · 9 = 36.", note: "4 · 9 = 36" },
+      { type: "choice", skill: "деление с остатком", q: "Число 36 больше или меньше, чем 35?",
+        options: ["Меньше", "Больше"], correct: 1,
+        rule: "Сравни: 36 и 35. Какое число дальше от нуля?",
+        ok: "Да, 36 больше 35. Значит, 9 страниц заполнить не хватит фотографий." },
+      { type: "number", skill: "деление с остатком", q: "Значит, сколько страниц заполнится полностью?", answer: 8,
+        rule: "Для 9 страниц нужно 36 фотографий, а их только 35. Берём число, для которого фотографий хватает.",
+        ok: "Верно: 8 полных страниц.", note: "35 : 4 = 8 (полных страниц)" },
+      { type: "number", skill: "сложение и вычитание", q: "На 8 страницах лежит 4 · 8 = 32 фотографии. Сколько будет 35 − 32?", answer: 3,
+        rule: "Сколько нужно прибавить к 32, чтобы получить 35?",
+        ok: "Верно: 35 − 32 = 3. Это остаток.", note: "35 − 32 = 3 (остаток)" },
+      { type: "number", skill: "проверка подстановкой", q: "Проверка. Сколько будет 4 · 8 + 3?", answer: 35,
+        rule: "4 · 8 = 32. К 32 прибавь 3.",
+        ok: "Верно: 4 · 8 + 3 = 35.", note: "4 · 8 + 3 = 35" },
+      { type: "choice", skill: "деление с остатком", q: "Остаток всегда меньше делителя. Делитель 4, остаток 3. Так и есть?",
+        options: ["Да, 3 меньше 4", "Нет, 3 больше 4"], correct: 0,
+        rule: "Сравни: 3 и 4.",
+        ok: "Да, остаток 3 меньше делителя 4. Запись правильная.", note: "35 : 4 = 8 (ост. 3)" },
+      { type: "choice", skill: "условие задачи", q: "Ответь на вопрос задачи: сколько фотографий осталось?",
+        options: ["8 фотографий", "9 фотографий", "31 фотография", "3 фотографии"], correct: 3,
+        rule: "Вспомни, что мы искали. 8 — это страницы, а не фотографии.",
+        ok: "Верно! Ответ: осталось 3 фотографии.", note: "Ответ: осталось 3 фотографии." }
+    ]
+  }
+];
+
+const ADULT_GATE = { q: "13 · 7", a: 91 };
+
+/* ============================================================
+   ГОЛОС ЛИСТИКА.
+   ИИ здесь только подбадривает. Он НЕ проверяет ответы, НЕ видит
+   вопросов, ответов и того, что набрал ребёнок. Ему передаётся
+   лишь тип события («ребёнок ошибся второй раз») и название темы.
+   Ответ ИИ проходит проверку; если что-то не так или ИИ недоступен,
+   показывается заготовленная фраза.
+   ============================================================ */
+const CANNED = {
+  start: ["Привет! Идём по шагам, спешить некуда.", "Начнём! Я рядом, будем разбираться вместе.", "Готов? Берём один шаг за раз."],
+  right: ["Ты сам это сделал, отлично!", "Точно! Так держать.", "Получилось! Идём дальше в своём темпе."],
+  rightAfter: ["Ты не сдался и дошёл до верного ответа, это здорово!", "Со второго раза тоже считается, главное, что ты сам разобрался.", "Вот видишь, получилось! Ты справился."],
+  wrong1: ["Ничего страшного, так бывает. Прочитай правило ниже и попробуй ещё раз.", "Ошибки — обычная часть работы. Посмотри правило и попробуй снова."],
+  wrong2: ["Не переживай, у тебя получится. Посмотри на похожий пример ниже.", "Давай не спешить. Разбери пример ниже и вернёмся к шагу."],
+  locked: ["Так бывает у всех, и ты старался. Можно отдохнуть или позвать взрослого.", "Ты уже проделал большую работу. Давай сделаем перерыв или позовём взрослого."],
+  retry: ["Попробуем ещё раз. Теперь ты знаешь больше.", "Ещё раз, без спешки. Я в тебя верю."],
+  done: ["Ты сам довёл решение до конца, это большая работа. Итог ниже.", "Вот и всё! Ты прошёл всю задачу. Смотри итог ниже."]
+};
+
+const SITUATION = {
+  start: "Ребёнок только открыл задачу и собирается начать. Поприветствуй и подбодри начать без спешки.",
+  right: "Ребёнок ответил верно с первой попытки. Похвали за то, что он сам справился (тема шага: {skill}).",
+  rightAfter: "Ребёнок ответил верно после нескольких неудачных попыток. Отметь, что он не сдался и разобрался сам (тема шага: {skill}).",
+  wrong1: "Ребёнок ошибся в первый раз. Скажи, что ошибки — нормальная часть работы. Предложи прочитать правило под твоей репликой и попробовать ещё раз (тема шага: {skill}).",
+  wrong2: "Ребёнок ошибся во второй раз. Поддержи, скажи, что ты рядом. Предложи разобрать пример под твоей репликой и попробовать снова (тема шага: {skill}).",
+  locked: "Ребёнок ошибся несколько раз подряд и может быть расстроен. Скажи, что так бывает у всех и что отдых — это нормально. Скажи, что можно позвать взрослого. Не проси решать дальше прямо сейчас.",
+  retry: "Ребёнок готов попробовать ещё раз после того, как взрослый помог. Подбодри.",
+  done: "Ребёнок дошёл до конца задачи и проверил ответ. Похвали за упорство и скажи, что итог занятия написан ниже."
+};
+
+const BANNED = /плюс|минус|умнож|раздел|подел|сложи|сложен|вычт|равн|скобк|остат|делител|делим|слагаем|уменьшаем|вычитаем|множител|частн/i;
+
+function cleanVoice(t) {
+  if (typeof t !== "string") return null;
+  t = t.trim().replace(/^["«“]+|["»”]+$/g, "").trim();
+  if (t.length < 8 || t.length > 220) return null;
+  if (/\d/.test(t)) return null;
+  if (/\?/.test(t)) return null;
+  if (/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(t)) return null;
+  if (BANNED.test(t)) return null;
+  if (!/[а-яё]/i.test(t)) return null;
+  return t;
+}
+
+let SAMPLE = null;
+let SAMPLE_STATE = "pending";   // pending | ok | none
+const AI = { on: true, denied: false };
+let voiceSeq = 0;
+const lastPick = {};
+
+if (window.claude && typeof window.claude.use === "function") {
+  window.claude.use("sample").then(fn => {
+    SAMPLE = fn || null;
+    SAMPLE_STATE = fn ? "ok" : "none";
+    if (S && S.view === "home") render();
+  }).catch(() => { SAMPLE_STATE = "none"; if (S && S.view === "home") render(); });
+} else {
+  SAMPLE_STATE = "none";
+}
+
+function pickCanned(ev) {
+  const arr = CANNED[ev];
+  let i = Math.floor(Math.random() * arr.length);
+  if (arr.length > 1 && i === lastPick[ev]) i = (i + 1) % arr.length;
+  lastPick[ev] = i;
+  return arr[i];
+}
+
+async function askVoice(ev, skill) {
+  if (!SAMPLE || !AI.on) return null;
+  const prompt =
+    "Ты — Листик, добрый компьютерный помощник-репетитор для ребёнка 8–9 лет (3 класс). " +
+    "Ты только поддерживаешь ребёнка. Проверкой ответов и математикой занимается программа, а не ты.\n" +
+    "Напиши ОДНУ реплику для ребёнка по-русски: 1–2 коротких предложения, не больше 25 слов, простыми словами, тёплым тоном, как старший брат или сестра.\n" +
+    "Строго запрещено: любые числа (и цифрами, и словами), решение, подсказки по математике, новые правила, математические термины, вопросы, эмодзи, упрёки, сравнение с другими детьми.\n" +
+    "Ситуация: " + SITUATION[ev].replace("{skill}", skill || "математика") + "\n" +
+    "Ответь только текстом реплики, без кавычек и пояснений.";
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 12000);
+  try {
+    const res = await SAMPLE(prompt, { modelTier: "quick", cache: false, signal: ctl.signal });
+    return cleanVoice(res && res.text);
+  } catch (e) {
+    if (e && e.code === "not_granted") { AI.on = false; AI.denied = true; }
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function say(ev, skill) {
+  const id = ++voiceSeq;
+  const canned = pickCanned(ev);
+  const useAI = !!(SAMPLE && AI.on);
+  S.voice = { id, text: useAI ? "" : canned, loading: useAI };
+  if (!useAI) { speak(canned); return; }
+  setTimeout(() => {
+    if (S.voice && S.voice.id === id && S.voice.loading) {
+      S.voice = { id, text: canned, loading: false };
+      paintVoice();
+      speak(canned);
+    }
+  }, 6000);
+  askVoice(ev, skill).then(v => {
+    if (!S.voice || S.voice.id !== id || !S.voice.loading) return;
+    S.voice = { id, text: v || canned, loading: false };
+    paintVoice();
+    speak(S.voice.text);
+  });
+}
+
+/* ---------- озвучка (встроенный голос браузера) ---------- */
+const TTS = { on: true, ok: !!(window.speechSynthesis && window.SpeechSynthesisUtterance), voice: null };
+function pickRuVoice() {
+  if (!TTS.ok) return;
+  try { TTS.voice = speechSynthesis.getVoices().find(v => /^ru/i.test(v.lang)) || null; } catch (e) {}
+}
+if (TTS.ok) {
+  pickRuVoice();
+  try { speechSynthesis.addEventListener("voiceschanged", () => { pickRuVoice(); if (S && S.view === "home") render(); }); } catch (e) {}
+}
+function spokenMath(s) {
+  return String(s)
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\(/g, " в скобках ").replace(/\)/g, " ")
+    .replace(/\s:\s/g, " разделить на ")
+    .replace(/·/g, " умножить на ")
+    .replace(/−/g, " минус ")
+    .replace(/\+/g, " плюс ")
+    .replace(/=/g, " равно ")
+    .replace(/\bx\b/gi, " икс ")
+    .replace(/ост\./g, "остаток")
+    .replace(/\s+/g, " ").trim();
+}
+function stopSpeech() { if (TTS.ok) { try { speechSynthesis.cancel(); } catch (e) {} } }
+function speak(text, force) {
+  if (!TTS.ok || (!TTS.on && !force) || !text) return;
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "ru-RU";
+    if (TTS.voice) u.voice = TTS.voice;
+    u.rate = 0.95; u.pitch = 1.1;
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+function ttsNote() {
+  if (!TTS.ok) return "<p>Озвучка в этом браузере не поддерживается, Листик только пишет.</p>";
+  if (!TTS.voice) return "<p>На этом устройстве не найден русский голос. Установите его в настройках речи телефона или компьютера (на Android это «Синтез речи Google», на iPhone «Универсальный доступ → Устный контент»).</p>";
+  return "<p>Листик читает свои слова вслух голосом устройства. Он звучит как робот, зато работает без интернета. Кнопка 🔊 у вопроса читает вопрос.</p>";
+}
+
+function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+function voiceHTML() {
+  const v = S.voice;
+  if (!v) return "";
+  return '<div class="voice">' + LEAF + '<div class="bubble">' +
+    (v.loading ? '<span class="dots3" role="img" aria-label="Листик думает"><i></i><i></i><i></i></span>' : esc(v.text)) +
+    '</div></div>';
+}
+function paintVoice() {
+  const slot = document.getElementById("voiceslot");
+  if (slot) slot.innerHTML = voiceHTML();
+}
+
+/* ------------------------------------------------------------ */
+const app = document.getElementById("app");
+const LEAF = '<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M6 34C6 16 16 6 34 6c0 18-10 28-26 28" fill="#2E9E5B" stroke="#1B3DB8" stroke-width="2.5" stroke-linejoin="round"/><path d="M6 34C14 24 21 18 28 12" fill="none" stroke="#1B3DB8" stroke-width="2.5" stroke-linecap="round"/></svg>';
+
+let S = { view: "home" };
+
+function freshEntry(st) { return st.type === "pair" ? st.fields.map(() => "") : [""]; }
+
+function startTask(i) {
+  const st0 = TASKS[i].steps[0];
+  S = {
+    view: "task", t: i, s: 0, attempts: 0, stage: "ask",
+    wrong: [], errors: {}, helped: {}, notes: [],
+    entry: freshEntry(st0), active: 0,
+    adultOpen: false, adultPassed: false, adultErr: false, emptyMsg: false, voice: null
+  };
+  say("start");
+  render();
+}
+
+function stepAnswerText(st) {
+  if (st.type === "choice") return st.options[st.correct];
+  if (st.type === "number") return String(st.answer);
+  return st.fields.map((f, i) => f + " = " + st.answer[i]).join(", ");
+}
+
+function header(backBtn) {
+  return '<div class="top"><div class="brand hand">' + LEAF + 'Листик</div><div class="tools">' +
+    (TTS.ok ? '<button class="snd" data-action="ttstoggle" aria-pressed="' + TTS.on + '">' + (TTS.on ? '🔊 Звук включён' : '🔇 Без звука') + '</button>' : '') +
+    (backBtn ? '<button class="back" data-action="home">К списку задач</button>' : '') + '</div></div>';
+}
+
+function render() {
+  if (S.view === "home") return renderHome();
+  if (S.view === "done") return renderDone();
+  return renderTask();
+}
+
+function aiNote() {
+  if (SAMPLE_STATE === "pending") return "";
+  if (SAMPLE_STATE === "none") return "";
+  if (AI.denied) return "<p>Разрешение на голос ИИ не дано. Листик подбадривает заготовленными фразами.</p>";
+  if (AI.on) return '<p>Голос Листика работает на ИИ Claude. ИИ только подбадривает и не видит ни вопросов, ни ответов: всё проверяет программа. При первом ответе Claude попросит у взрослого разрешение, расход идёт с аккаунта взрослого.</p><button class="btn ghost small" data-action="aitoggle">Выключить голос ИИ</button>';
+  return '<p>Голос ИИ выключен. Листик подбадривает заготовленными фразами.</p><button class="btn ghost small" data-action="aitoggle">Включить голос ИИ</button>';
+}
+
+function renderHome() {
+  let h = header(false);
+  h += '<p class="lead">Привет! Я Листик, компьютерная программа-помощник по математике. Выбери номер из учебника.</p>';
+  h += '<ul class="tasks">';
+  TASKS.forEach((t, i) => {
+    h += '<li><button class="task-btn" data-action="start" data-i="' + i + '">' +
+      '<span class="task-no hand">№ ' + t.no + '</span>' +
+      '<span class="task-title">' + t.title + '</span>' +
+      '<span class="task-cond">' + t.condition + '</span></button></li>';
+  });
+  h += '</ul>';
+  h += '<div class="foot"><p>Все вопросы, правила и ответы записаны заранее. Программа сама сверяет ответ ребёнка с верным.</p>' + aiNote() + ttsNote() + '</div>';
+  app.innerHTML = h;
+  window.scrollTo(0, 0);
+}
+
+function padHTML() {
+  let h = '<div class="pad" role="group" aria-label="Цифры">';
+  for (let d = 1; d <= 9; d++) h += '<button class="key" data-action="digit" data-d="' + d + '">' + d + '</button>';
+  h += '<button class="key erase" data-action="back" aria-label="Стереть">⌫</button>' +
+    '<button class="key" data-action="digit" data-d="0">0</button>' +
+    '<button class="key go" data-action="check">Проверить</button></div>';
+  return h;
+}
+
+function renderTask() {
+  const T = TASKS[S.t];
+  const st = T.steps[S.s];
+  const n = T.steps.length;
+  let h = header(true);
+
+  h += '<div class="condition"><div class="no">Задача № ' + T.no + '</div><div class="txt hand' + (T.long ? ' long' : '') + '">' + T.condition + '</div></div>';
+
+  if (S.notes.length) {
+    h += '<div class="notebook" aria-label="Запись в тетради">';
+    S.notes.forEach(x => { h += '<div class="nline hand">' + x + '</div>'; });
+    h += '</div>';
+  }
+
+  h += '<div class="dots" role="img" aria-label="Шаг ' + (S.s + 1) + ' из ' + n + '">';
+  for (let i = 0; i < n; i++) {
+    const cls = i < S.s || (i === S.s && S.stage === "right") ? "done" : (i === S.s ? "cur" : "");
+    h += '<span class="dot ' + cls + '"></span>';
+  }
+  h += '</div>';
+
+  h += '<div class="step"><div class="meta-row"><div class="meta">Шаг ' + (S.s + 1) + ' из ' + n + '</div>' +
+    (TTS.ok ? '<button class="speak" data-action="readq" aria-label="Прочитать вопрос вслух">🔊 Прочитать</button>' : '') + '</div>';
+  h += '<p class="q">' + st.q + '</p>';
+  h += '<div id="voiceslot">' + voiceHTML() + '</div>';
+
+  if (S.stage === "ask") {
+    if (st.type === "choice") {
+      h += '<div class="opts">';
+      st.options.forEach((o, i) => {
+        const w = S.wrong.includes(i);
+        h += '<button class="opt' + (w ? ' wrong' : '') + '" data-action="pick" data-i="' + i + '"' + (w ? ' disabled' : '') + '>' + o + '</button>';
+      });
+      h += '</div>';
+    } else {
+      const labels = st.type === "pair" ? st.fields : [null];
+      h += '<div class="fields">';
+      labels.forEach((lab, i) => {
+        const v = S.entry[i];
+        h += '<div class="field">' + (lab ? '<span>' + lab + '</span>' : '') +
+          '<button class="disp' + (S.active === i ? ' active' : '') + '" data-action="focus" data-i="' + i + '" aria-label="' + (lab || 'Ответ') + ': ' + (v || 'пусто') + '">' +
+          '<span class="val">' + (v || '<span class="ph">?</span>') + '</span></button></div>';
+      });
+      h += '</div>';
+    }
+
+    if (S.emptyMsg) h += '<div class="fb bad" role="alert">Набери число кнопками и нажми «Проверить».</div>';
+
+    if (S.attempts >= 1) {
+      h += '<div class="fb bad pop" role="alert"><strong class="r">Пока не так.</strong> ' +
+        (S.attempts === 1 ? 'Смотри правило и попробуй ещё раз.' : 'Разберём похожий пример и попробуем снова.') + '</div>';
+      h += '<div class="mark"><b>Правило:</b> ' + st.rule + '</div>';
+    }
+    if (S.attempts >= 2) {
+      h += '<div class="mark"><b>Похожий пример:</b> ' + T.similar + '</div>';
+    }
+    if (st.type !== "choice") h += padHTML();
+  }
+
+  if (S.stage === "right") {
+    h += '<div class="fb ok pop" role="status"><strong class="g">Верно!</strong> ' + st.ok + '</div>';
+    const last = S.s === n - 1;
+    h += '<div class="row"><button class="btn" data-action="next">' + (last ? 'Закончить' : 'Дальше') + '</button></div>';
+  }
+
+  if (S.stage === "locked") {
+    h += '<div class="fb bad" role="alert"><strong class="r">Так бывает у всех.</strong> Можно сделать перерыв или позвать взрослого.</div>';
+    h += '<div class="mark"><b>Правило:</b> ' + st.rule + '</div>';
+    h += '<div class="row"><button class="btn ghost" data-action="home">Сделать перерыв</button>' +
+      (S.adultPassed ? '' : '<button class="btn" data-action="adult">Позвать взрослого</button>') + '</div>';
+    if (S.adultOpen && !S.adultPassed) {
+      h += '<div class="mark"><b>Для взрослого.</b> Чтобы открыть подсказку, ответьте: сколько будет ' + ADULT_GATE.q + '?' +
+        '<div class="fields" style="margin-top:8px"><input id="adultIn" class="num" inputmode="numeric" autocomplete="off" placeholder="?">' +
+        '<button class="btn" data-action="adultcheck">Открыть</button></div>' +
+        (S.adultErr ? '<div>Не совпало. Попробуйте ещё раз.</div>' : '') + '</div>';
+    }
+    if (S.adultPassed) {
+      h += '<div class="mark"><b>Для взрослого.</b> Ответ этого шага: <b>' + stepAnswerText(st) + '</b>. ' +
+        'Объясните ребёнку, почему так, и нажмите «Ещё раз». Ответ ребёнок вводит сам.' +
+        '<div class="row"><button class="btn" data-action="retry">Ещё раз</button></div></div>';
+    }
+  }
+
+  h += '</div>';
+  app.innerHTML = h;
+
+  if (S.stage === "locked" && S.adultOpen && !S.adultPassed) {
+    const el = document.getElementById("adultIn");
+    if (el) el.focus({ preventScroll: true });
+  }
+}
+
+function judge(isCorrect, pickedIndex) {
+  const T = TASKS[S.t];
+  const st = T.steps[S.s];
+  S.emptyMsg = false;
+  if (isCorrect) {
+    S.stage = "right";
+    if (st.note) S.notes.push(st.note);
+    say((S.errors[S.s] || 0) > 0 ? "rightAfter" : "right", st.skill);
+  } else {
+    S.attempts++;
+    S.errors[S.s] = (S.errors[S.s] || 0) + 1;
+    if (pickedIndex !== undefined) S.wrong.push(pickedIndex);
+    S.entry = freshEntry(st); S.active = 0;
+    if (S.attempts >= 3) { S.stage = "locked"; say("locked", st.skill); }
+    else say(S.attempts === 1 ? "wrong1" : "wrong2", st.skill);
+  }
+  render();
+}
+
+function digit(d) {
+  if (S.entry[S.active].length >= 3) return;
+  S.entry[S.active] = S.entry[S.active] === "0" ? d : S.entry[S.active] + d;
+  S.emptyMsg = false;
+  render();
+}
+function backspace() {
+  S.entry[S.active] = S.entry[S.active].slice(0, -1);
+  render();
+}
+
+function checkTyped() {
+  const st = TASKS[S.t].steps[S.s];
+  const vals = S.entry.map(v => v === "" ? NaN : parseInt(v, 10));
+  if (vals.every(isNaN)) { S.emptyMsg = true; return render(); }
+  const missing = vals.findIndex(isNaN);
+  if (missing !== -1) { S.active = missing; S.emptyMsg = false; return render(); }
+  if (st.type === "number") return judge(vals[0] === st.answer);
+  judge(vals.every((v, i) => v === st.answer[i]));
+}
+
+function nextStep() {
+  const T = TASKS[S.t];
+  if (S.s === T.steps.length - 1) {
+    S.view = "done"; S.voice = null;
+    render();
+    say("done");
+    paintVoice();
+    return;
+  }
+  stopSpeech();
+  S.s++; S.attempts = 0; S.stage = "ask"; S.wrong = []; S.voice = null;
+  S.entry = freshEntry(T.steps[S.s]); S.active = 0;
+  S.adultOpen = false; S.adultPassed = false; S.adultErr = false; S.emptyMsg = false;
+  render();
+}
+
+function renderDone() {
+  const T = TASKS[S.t];
+  const clean = new Set(), hard = new Set(), repeat = new Set();
+  let firstTry = 0;
+  T.steps.forEach((st, i) => {
+    const e = S.errors[i] || 0;
+    if (e === 0 && !S.helped[i]) { firstTry++; clean.add(st.skill); }
+    if (e > 0) hard.add(st.skill);
+    if (e >= 2 || S.helped[i]) repeat.add(st.skill);
+  });
+  hard.forEach(x => clean.delete(x));
+  const list = s => Array.from(s).join(", ");
+  let h = header(true);
+  h += '<div class="condition"><div class="no">Задача № ' + T.no + ' решена</div><div class="txt hand' + (T.long ? ' long' : '') + '">' + T.condition + '</div></div>';
+  if (S.notes.length) {
+    h += '<div class="notebook">';
+    S.notes.forEach(x => { h += '<div class="nline hand">' + x + '</div>'; });
+    h += '</div>';
+  }
+  h += '<div id="voiceslot">' + voiceHTML() + '</div>';
+  h += '<div class="sum"><h2>Итог занятия</h2>';
+  h += '<p>С первого раза получилось шагов: <b>' + firstTry + ' из ' + T.steps.length + '</b>.</p>';
+  h += '<p><b>Получилось сам:</b> ' + (clean.size ? list(clean) : 'в этот раз всё давалось с трудом, и это нормально') + '.</p>';
+  h += '<p><b>Было трудно:</b> ' + (hard.size ? list(hard) : 'ничего, шаги шли гладко') + '.</p>';
+  h += '<p><b>Стоит повторить:</b> ' + (repeat.size ? list(repeat) : 'пока ничего, можно брать следующую задачу') + '.</p>';
+  h += '<div class="row"><button class="btn" data-action="home">К списку задач</button><button class="btn ghost" data-action="start" data-i="' + S.t + '">Решить ещё раз</button></div></div>';
+  app.innerHTML = h;
+  window.scrollTo(0, 0);
+}
+
+function readNum(id) {
+  const el = document.getElementById(id);
+  if (!el) return NaN;
+  const v = el.value.replace(/\s+/g, "");
+  return /^\d+$/.test(v) ? parseInt(v, 10) : NaN;
+}
+
+app.addEventListener("click", e => {
+  const b = e.target.closest("[data-action]");
+  if (!b) return;
+  const a = b.dataset.action;
+  if (a === "start") return startTask(+b.dataset.i);
+  if (a === "home") { stopSpeech(); S = { view: "home" }; return render(); }
+  if (a === "ttstoggle") { TTS.on = !TTS.on; if (!TTS.on) stopSpeech(); return render(); }
+  if (a === "readq") { const q = TASKS[S.t].steps[S.s].q; return speak(spokenMath(q), true); }
+  if (a === "aitoggle") { AI.on = !AI.on; return render(); }
+  if (a === "pick") { const i = +b.dataset.i; return judge(i === TASKS[S.t].steps[S.s].correct, i); }
+  if (a === "digit") return digit(b.dataset.d);
+  if (a === "back") return backspace();
+  if (a === "focus") { S.active = +b.dataset.i; return render(); }
+  if (a === "check") return checkTyped();
+  if (a === "next") return nextStep();
+  if (a === "adult") { S.adultOpen = true; return render(); }
+  if (a === "adultcheck") {
+    if (readNum("adultIn") === ADULT_GATE.a) { S.adultPassed = true; S.helped[S.s] = true; S.adultErr = false; }
+    else S.adultErr = true;
+    return render();
+  }
+  if (a === "retry") {
+    const st = TASKS[S.t].steps[S.s];
+    S.stage = "ask"; S.attempts = 2; S.wrong = []; S.adultOpen = false; S.adultPassed = false;
+    S.entry = freshEntry(st); S.active = 0;
+    say("retry", st.skill);
+    return render();
+  }
+});
+
+/* цифры с обычной клавиатуры (на компьютере) */
+document.addEventListener("keydown", e => {
+  if (e.target && e.target.id === "adultIn" && e.key === "Enter") {
+    const btn = app.querySelector('[data-action="adultcheck"]'); if (btn) btn.click(); return;
+  }
+  if (!S || S.view !== "task" || S.stage !== "ask") return;
+  const st = TASKS[S.t].steps[S.s];
+  if (st.type === "choice") return;
+  if (e.target && e.target.tagName === "INPUT") return;
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (/^\d$/.test(e.key)) { digit(e.key); e.preventDefault(); }
+  else if (e.key === "Backspace") { backspace(); e.preventDefault(); }
+  else if (e.key === "Enter" && !(e.target && e.target.tagName === "BUTTON")) { checkTyped(); e.preventDefault(); }
+  else if (st.type === "pair" && (e.key === "ArrowRight" || e.key === "ArrowLeft")) {
+    S.active = (S.active + 1) % st.fields.length; render(); e.preventDefault();
+  }
+});
+
+render();
+</script>
+</body>
+</html>
